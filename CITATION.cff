@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "Si utiliza este material, por favor cítelo como se indica."
+title: "Explorador de excitones interlaminares en heteroestructuras de van der Waals"
+version: "1.0"
+date-released: "2026-09-09"
+license: CC-BY-4.0
+url: "https://elodiestrupiechonski.github.io/excitones-explorador/"
+type: software
+authors:
+  - given-names: Elodie
+    family-names: Strupiechonski
+    affiliation: "ENES Juriquilla, UNAM"
+    orcid: "https://orcid.org/0000-0001-8991-8499"
+  - given-names: Andrés
+    family-names: de Luna Bugallo
+    affiliation: "CFATA, UNAM"
+    orcid: "https://orcid.org/0000-0002-7591-5235"
+keywords:
+  - excitones interlaminares
+  - heteroestructuras de van der Waals
+  - dicalcogenuros de metales de transición
+  - TCSPC
+  - PLIM
