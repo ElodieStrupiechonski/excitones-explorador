@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Elodie Strupiechonski; Andrés de Luna Bugallo">
-<meta name="description" content="Explorador interactivo de excitones intra e interlaminares en heteroestructuras de van der Waals (TMD). Recurso educativo/de investigación, CFATA-UNAM. Funciona sin conexión.">
+<meta name="description" content="Explorador interactivo de excitones intra e interlaminares en heteroestructuras de van der Waals (TMD). Funciona sin conexión.">
 <meta name="license" content="CC BY 4.0">
 <title>Explorador de excitones interlaminares</title>
 <style>
@@ -15,7 +15,7 @@
   header h1{margin:0;font-size:18px;font-weight:600}
   header p{margin:4px 0 0;font-size:12px;opacity:.85}
   .wrap{display:flex;gap:18px;padding:18px;align-items:flex-start;flex-wrap:wrap}
-  .side{flex:0 0 340px;max-width:340px}
+  .side{flex:0 0 350px;max-width:350px}
   .main{flex:1 1 560px;min-width:520px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px}
   .card h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--acc)}
@@ -24,7 +24,7 @@
   select,input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-size:13px;background:#fff;color:#1c2430}
   select:focus,input:focus{outline:2px solid #cfe0f7;border-color:var(--acc)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
-  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center}
   button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600}
   .btn-p{background:var(--navy);color:#fff}
   .btn-s{background:#e9eef6;color:var(--navy)}
@@ -35,8 +35,24 @@
   .readout{font-size:12.5px;color:#33404f;background:#f2f6fc;border:1px solid #e0e8f4;border-radius:8px;padding:9px 11px;margin-top:10px}
   .readout b{color:var(--navy)}
   .mini{font-size:11px;color:#8a93a0}
-  details{margin-top:6px}
+  details{margin-top:8px}
   summary{cursor:pointer;font-size:12px;color:var(--acc)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg label{padding:6px 12px;font-size:12.5px;cursor:pointer;background:#fff;color:#445}
+  .seg input{display:none}
+  .seg input:checked+span{background:var(--navy);color:#fff}
+  .seg span{display:inline-block;padding:6px 12px;margin:-6px -12px;border-radius:0}
+  .chk{display:flex;align-items:center;gap:7px;font-size:12.5px;margin:4px 0}
+  .chk input{width:auto}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:0 0 11px}
+  .info h3{margin:2px 0 3px;font-size:12px;color:var(--navy);text-transform:uppercase;letter-spacing:.03em}
+  .info p{margin:0 0 8px;font-size:12.5px;color:#33404f}
+  .info .eqn{font-family:Cambria,Georgia,'Times New Roman',serif;font-size:14px;background:#f4f7fc;border:1px solid #e4ebf5;border-radius:6px;padding:7px 10px;display:block}
+  .info .refs{font-size:11.5px;color:var(--grey)}
+  .info .refs a{color:var(--acc)}
+  .reflist{font-size:11.5px;color:var(--grey);line-height:1.55}
+  .reflist a{color:var(--acc)}
+  .reflist div{margin:0 0 6px}
   footer{margin:6px 18px 26px;padding-top:12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--grey);line-height:1.6}
   footer a{color:var(--acc)}
 </style>
@@ -44,30 +60,48 @@
 <body>
 <header>
   <h1>Explorador de excitones intra e interlaminares — heteroestructuras de van der Waals</h1>
-  <p>Seleccione un sistema, edite sus parámetros y genere gráficas. Descargue los datos (CSV) o la figura (JPG). Modelos ilustrativos; ajústelos a su sistema.</p>
+  <p>Seleccione un sistema o compare varios, edite parámetros y genere gráficas. Descargue los datos (CSV) o la figura (JPG). Modelos ilustrativos con parámetros de la literatura (véanse referencias); ajústelos a su sistema.</p>
 </header>
 
 <div class="wrap">
   <div class="side">
     <div class="card">
-      <h2>Sistema y gráfica</h2>
-      <label class="fld"><span>Sistema</span><select id="sysSel"></select></label>
-      <label class="fld"><span>Gráfica</span><select id="plotSel"></select></label>
-      <div class="row">
-        <button class="btn-s" id="btnReset" title="Restablecer parámetros del caso">Restablecer</button>
-        <span class="mini" id="sysTag"></span>
+      <h2>Modo y gráfica</h2>
+      <div class="seg" id="modeSeg" role="tablist" style="margin-bottom:10px">
+        <label><input type="radio" name="mode" value="single" checked><span>Caso único</span></label>
+        <label><input type="radio" name="mode" value="compare"><span>Comparar sistemas</span></label>
       </div>
+      <label class="fld"><span>Gráfica</span><select id="plotSel"></select></label>
+
+      <div id="singleBox">
+        <label class="fld"><span>Sistema</span><select id="sysSel"></select></label>
+        <div class="row"><span class="mini" id="sysTag"></span></div>
+      </div>
+
+      <div id="compareBox" hidden>
+        <div class="mini" style="margin-bottom:6px">Marque los sistemas a superponer:</div>
+        <div id="chkList"></div>
+      </div>
+
       <div class="readout" id="readout"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="paramCard">
       <h2>Parámetros del caso <span class="badge" id="editBadge">editables</span></h2>
       <div class="grid2" id="params"></div>
+      <div class="row"><button class="btn-s" id="btnResetCase">Restablecer parámetros del caso</button></div>
       <details>
         <summary>Parámetros globales (deformación / moiré / detección)</summary>
         <div class="grid2" id="globals" style="margin-top:8px"></div>
+        <div class="row"><button class="btn-s" id="btnResetGlob">Restablecer parámetros globales</button></div>
+        <p class="note">Globales tomados de: deformación Ξ y Raman (Conley 2013); embudo (Feng 2012); moiré (Zhang 2020); detección de Si (respuesta del detector, instrumento).</p>
       </details>
       <p class="note">Cualquier cambio actualiza la gráfica al instante. Las listas (p. ej. d Stark) van separadas por comas.</p>
+    </div>
+
+    <div class="card">
+      <h2>Referencias</h2>
+      <div class="reflist" id="refList"></div>
     </div>
   </div>
 
@@ -81,7 +115,11 @@
         <span class="mini" id="fnameTag"></span>
       </div>
       <canvas id="cv" width="920" height="580"></canvas>
-      <p class="note" id="plotNote"></p>
+    </div>
+    <div class="card info" id="infoCard">
+      <h3>Fórmula</h3><span class="eqn" id="infoEq"></span>
+      <h3 style="margin-top:10px">Para qué sirve</h3><p id="infoUse"></p>
+      <h3>Referencias de esta gráfica</h3><p class="refs" id="infoRefs"></p>
     </div>
   </div>
 </div>
@@ -98,6 +136,21 @@
 /* ===================== constantes ===================== */
 const muB=0.057883, kB=0.0861733, hc=1240.0;
 const C={navy:"#1F3864",acc:"#2E5496",red:"#C0392B",blue:"#2E5496",green:"#2E7D32",orange:"#E08214",purp:"#7E57C2",grey:"#666",teal:"#00838F"};
+const PAL=["#1F3864","#C0392B","#2E7D32","#E08214","#7E57C2","#00838F","#B8860B","#7A5195","#EF5675","#1b7837","#8c6d31","#3b5998"];
+
+/* ===================== referencias JCR ===================== */
+const REFS={
+ wang2018:{c:"Wang, G. et al. Colloquium: Excitons in atomically thin TMDs. Rev. Mod. Phys. 90, 021001 (2018).",d:"10.1103/RevModPhys.90.021001"},
+ rivera2015:{c:"Rivera, P. et al. Observation of long-lived interlayer excitons in MoSe₂–WSe₂. Nat. Commun. 6, 6242 (2015).",d:"10.1038/ncomms7242"},
+ natmat2020:{c:"Interlayer excitons and how to trap them. Nat. Mater. 19, 579 (2020).",d:"10.1038/s41563-020-0701-0"},
+ regan2022:{c:"Regan, E. C. et al. Emerging exciton physics in TMD heterobilayers. Nat. Rev. Mater. 7, 778 (2022).",d:"10.1038/s41578-022-00440-1"},
+ zhang2020:{c:"Zhang, L. et al. Twist-angle dependence of moiré excitons in WS₂/MoSe₂. Nat. Commun. 11, 5888 (2020).",d:"10.1038/s41467-020-19466-6"},
+ conley2013:{c:"Conley, H. J. et al. Bandgap engineering of strained monolayer and bilayer MoS₂. Nano Lett. 13, 3626 (2013).",d:"10.1021/nl4014748"},
+ nanolett2023:{c:"Pressure-induced dynamic tuning of interlayer coupling in twisted WSe₂/WSe₂. Nano Lett. (2023).",d:"10.1021/acs.nanolett.3c01640"},
+ feng2012:{c:"Feng, J. et al. Strain-engineered artificial atom as a broad-spectrum solar energy funnel. Nat. Photonics 6, 866 (2012).",d:"10.1038/nphoton.2012.285"},
+ chernikov2014:{c:"Chernikov, A. et al. Exciton binding energy and non-hydrogenic Rydberg series in monolayer WS₂. Phys. Rev. Lett. 113, 076802 (2014).",d:"10.1103/PhysRevLett.113.076802"},
+ jauregui2019:{c:"Jauregui, L. A. et al. Electrical control of interlayer exciton dynamics in atomically thin heterostructures. Science 366, 870 (2019).",d:"10.1126/science.aaw4194"},
+};
 
 /* ===================== casos ===================== */
 function real(capa1,capa2,E,d,t0,d0,lam,beta,E0,kappa,dEdP,Ebi,Ebe,alpha,sd,gA,gB,gi,ai,ae,tau0){
@@ -131,22 +184,21 @@ const GLOBAL_DEF={Xi_meV_pct:-100, raman_dw_cm_pct:-4.5, funnel_grad_pct_um:0.5,
 const EPL=[20e6,10e6,5e6,2e6,1e6,500e3,200e3,100e3,50e3,25e3,10e3,5e3,2.5e3];
 const IRF_ns=0.20;
 
-/* campos editables del caso */
 const PDEF=[
  ["capa1","capa superior","str"],["capa2","capa inferior","str"],
- ["E_IX_eV","E_IX (eV)","num"],["d_nm","d (nm)","num"],
- ["t0_meV","t0 (meV)","num"],["d0_nm","d0 (nm)","num"],["lam_nm","λ (nm)","num"],
- ["beta_eV_nm","β (eV/nm)","num"],["E0_eV","E0 (eV)","num"],
+ ["E_IX_eV","E<sub>IX</sub> (eV)","num"],["d_nm","d (nm)","num"],
+ ["t0_meV","t₀ (meV)","num"],["d0_nm","d₀ (nm)","num"],["lam_nm","λ (nm)","num"],
+ ["beta_eV_nm","β (eV/nm)","num"],["E0_eV","E₀ (eV)","num"],
  ["kappa_GPa","κ (1/GPa)","num"],["dEdP_meV_GPa","dE/dP (meV/GPa)","num"],
- ["Eb_intra_meV","Eb intra (meV)","num"],["Eb_inter_meV","Eb inter (meV)","num"],
+ ["Eb_intra_meV","E<sub>b</sub> intra (meV)","num"],["Eb_inter_meV","E<sub>b</sub> inter (meV)","num"],
  ["stark_alpha","α Stark","num"],["stark_d_list","d Stark (nm, lista)","arr"],
  ["g_intraA","g intra A","num"],["g_intraB","g intra B","num"],["g_inter","g inter","num"],
  ["arr_intra","Arrhenius intra [A,Ea]","arr"],["arr_inter","Arrhenius inter [A,Ea]","arr"],
- ["tau0_ns","τ0 (ns)","num"],["dipole_sign","signo dipolo (±1)","num"],
+ ["tau0_ns","τ₀ (ns)","num"],["dipole_sign","signo dipolo (±1)","num"],
 ];
 const GDEF=[
  ["Xi_meV_pct","Ξ (meV/%)","num"],["raman_dw_cm_pct","dω/dε (cm⁻¹/%)","num"],["funnel_grad_pct_um","grad ε (%/µm)","num"],
- ["a_latt_nm","a red (nm)","num"],["delta_mis","δ desajuste","num"],["V_moire_meV","V_M (meV)","num"],["spot_um","punto (µm)","num"],
+ ["a_latt_nm","a red (nm)","num"],["delta_mis","δ desajuste","num"],["V_moire_meV","V<sub>M</sub> (meV)","num"],["spot_um","punto (µm)","num"],
  ["SI_QE_PEAK","QE Si pico","num"],["SI_QE_CENTER","QE Si centro (nm)","num"],["SI_QE_WIDTH","QE Si ancho (nm)","num"],["SI_QE_CUT","QE Si corte (nm)","num"],
 ];
 
@@ -154,218 +206,239 @@ const GDEF=[
 const lin=(a,b,n)=>{const o=[];for(let i=0;i<n;i++)o.push(a+(b-a)*i/(n-1));return o;};
 const logspace=(a,b,n)=>{const o=[];for(let i=0;i<n;i++)o.push(Math.pow(10,Math.log10(a)+(Math.log10(b)-Math.log10(a))*i/(n-1)));return o;};
 const qeSi=(l,g)=>{let q=g.SI_QE_PEAK*Math.exp(-Math.pow((l-g.SI_QE_CENTER)/g.SI_QE_WIDTH,2))*(1-1/(1+Math.exp(-(l-g.SI_QE_CUT)/25)));return Math.max(0,Math.min(1,q));};
+const F_GRID=lin(0,0.15,61), B_GRID=lin(0,30,61), P_GRID=lin(0,8,60), T_GRID=lin(4,300,120), N_GRID=[1,2,3,4,5];
+const arrF=(A,Ea)=>T_GRID.map(t=>1/(1+A*Math.exp(-Ea/(kB*t))));
 
 /* ===================== definición de gráficas ===================== */
 const PLOTS={
- stark:{label:"Efecto Stark ΔE(F)", fn:(c,g)=>{
-   const F=lin(0,0.15,61), s=[]; s.push({name:"intracapa",x:F,y:F.map(f=>-c.stark_alpha*f*f),color:C.red,dash:[4,3]});
-   const cols=[C.navy,C.acc,C.teal];
-   c.stark_d_list.forEach((d,i)=>s.push({name:"inter d="+d+" nm",x:F,y:F.map(f=>-1000*d*f*c.dipole_sign),color:cols[i%3]}));
-   return {title:"Efecto Stark del excitón (dipolo permanente)",xlabel:"F (V nm⁻¹)",ylabel:"ΔE Stark (meV)",series:s};}},
- zeeman:{label:"Zeeman de valle ΔE(B)", fn:(c,g)=>{
-   const B=lin(0,30,61), z=gg=>B.map(b=>gg*muB*b);
-   return {title:"Desdoblamiento Zeeman de valle",xlabel:"B (T)",ylabel:"ΔE (meV)",series:[
-     {name:"inter g="+c.g_inter,x:B,y:z(c.g_inter),color:C.blue},
-     {name:"intra A g="+c.g_intraA,x:B,y:z(c.g_intraA),color:C.red},
-     {name:"intra B g="+c.g_intraB,x:B,y:z(c.g_intraB),color:C.orange,dash:[4,3]}]};}},
- acopl:{label:"Acoplamiento t⊥(d)", fn:(c,g)=>{
-   const d=lin(c.d0_nm-0.10,c.d0_nm+0.15,60);
-   return {title:"Acoplamiento interlaminar fuera del plano",xlabel:"d (nm)",ylabel:"t⊥ (meV)",series:[
-     {name:"t⊥(d)=t0·e^[-(d-d0)/λ]",x:d,y:d.map(x=>c.t0_meV*Math.exp(-(x-c.d0_nm)/c.lam_nm)),color:C.blue}]};}},
- presion:{label:"Presión: ΔE_IX(P) (DAC)", fn:(c,g)=>{
-   const P=lin(0,8,60);
-   return {title:"Corrimiento del IX bajo presión (celda de diamante)",xlabel:"P (GPa)",ylabel:"ΔE_IX (meV)",series:[
-     {name:"dE/dP="+c.dEdP_meV_GPa+" meV/GPa",x:P,y:P.map(p=>c.dEdP_meV_GPa*p),color:C.red}]};}},
- rydberg:{label:"Serie de Rydberg 2D", fn:(c,g)=>{
-   const n=[1,2,3,4,5];
-   return {title:"Serie de Rydberg 2D  E_n = −E_b/(2n−1)²",xlabel:"n",ylabel:"E (meV)",markers:true,series:[
-     {name:"intracapa (Eb="+c.Eb_intra_meV+")",x:n,y:n.map(k=>-c.Eb_intra_meV/Math.pow(2*k-1,2)),color:C.red},
-     {name:"interlaminar (Eb="+c.Eb_inter_meV+")",x:n,y:n.map(k=>-c.Eb_inter_meV/Math.pow(2*k-1,2)),color:C.blue}]};}},
- plT:{label:"PL vs T (Arrhenius)", fn:(c,g)=>{
-   const T=lin(4,300,120), f=(A,Ea)=>T.map(t=>1/(1+A*Math.exp(-Ea/(kB*t))));
-   return {title:"Extinción térmica de la PL",xlabel:"T (K)",ylabel:"PL (norm.)",series:[
-     {name:"intracapa (Ea="+c.arr_intra[1]+")",x:T,y:f(c.arr_intra[0],c.arr_intra[1]),color:C.red},
-     {name:"interlaminar (Ea="+c.arr_inter[1]+")",x:T,y:f(c.arr_inter[0],c.arr_inter[1]),color:C.blue}]};}},
- tauT:{label:"τ interlaminar vs T", fn:(c,g)=>{
-   const T=lin(4,300,120), f=T.map(t=>c.tau0_ns/(1+c.arr_inter[0]*Math.exp(-c.arr_inter[1]/(kB*t))));
-   return {title:"Tiempo de vida interlaminar vs. temperatura",xlabel:"T (K)",ylabel:"τ (ns)",series:[
-     {name:"τ(T), τ0="+c.tau0_ns+" ns",x:T,y:f,color:C.navy}]};}},
- tcspc:{label:"Ventana TCSPC (log-log)", fn:(c,g)=>{
-   const ff=logspace(2.5e3,20e6,200);
-   return {title:"Factibilidad TCSPC: τmáx = Trep/5",xlabel:"f_rep (Hz)",ylabel:"τ (ns)",xlog:true,ylog:true,
-     bands:[{y0:1,y1:1000,color:C.red,label:"IX esperado"},{y0:0.001,y1:0.1,color:C.grey,label:"intracapa"}],
-     hlines:[{y:IRF_ns/4,label:"τmín≈50 ps"}],
-     series:[{name:"τmáx=Trep/5",x:ff,y:ff.map(f=>1e9/f/5),color:C.navy},
-             {name:"frecuencias EPL-405",x:EPL,y:EPL.map(f=>1e9/f/5),color:C.blue,markers:true,noline:true}]};}},
- deteccion:{label:"Detección: QE Si + λ_IX", fn:(c,g)=>{
-   const lam=lin(400,1100,141), l=hc/c.E_IX_eV;
-   return {title:"Factibilidad de detección con Si",xlabel:"λ emisión (nm)",ylabel:"QE Si (aprox., %)",
-     vlines:[{x:l,label:c.capa1+"/"+c.capa2+"  "+l.toFixed(0)+" nm",color:C.red}],
-     series:[{name:"QE Si",x:lam,y:lam.map(x=>qeSi(x,g)*100),color:C.navy}]};}},
- deformacion:{label:"Deformación: ΔE_IX, Raman", fn:(c,g)=>{
-   const e=lin(0,1.5,61);
-   return {title:"Deformación biaxial: corrimiento del IX y Raman",xlabel:"ε (%)",ylabel:"ΔE_IX (meV)  /  Δω×10 (cm⁻¹)",series:[
-     {name:"ΔE_IX=Ξ·ε (Ξ="+g.Xi_meV_pct+")",x:e,y:e.map(x=>g.Xi_meV_pct*x),color:C.red},
-     {name:"Δω×10 (dω/dε="+g.raman_dw_cm_pct+")",x:e,y:e.map(x=>10*g.raman_dw_cm_pct*x),color:C.blue,dash:[4,3]}]};}},
- moire:{label:"Moiré: a_M(θ)", fn:(c,g)=>{
-   const th=lin(0.05,3,120), rad=x=>x*Math.PI/180;
-   return {title:"Superred moiré: periodo a_M = a/√(δ²+θ²)",xlabel:"θ (°)",ylabel:"a_M (nm)",ymax:25,series:[
-     {name:"heterobicapa (δ="+g.delta_mis+")",x:th,y:th.map(x=>g.a_latt_nm/Math.sqrt(g.delta_mis*g.delta_mis+rad(x)*rad(x))),color:C.navy},
-     {name:"bicapa girada (δ=0)",x:th,y:th.map(x=>g.a_latt_nm/rad(x)),color:C.green,dash:[4,3]}]};}},
+ stark:{label:"Efecto Stark ΔE(F)", cmp:true,
+   eq:"ΔE_{inter} = −e·d·F  (lineal, dipolo permanente);   ΔE_{intra} = −½·α·F²  (cuadrático)",
+   use:"Sintonización eléctrica del excitón con un campo vertical (compuerta). La pendiente lineal es la firma del dipolo permanente del IX; su signo cambia al invertir el apilamiento y distingue el IX del excitón intracapa.",
+   refs:["rivera2015","jauregui2019","wang2018"],
+   fn:(c,g)=>{const F=F_GRID, s=[{name:"intracapa",x:F,y:F.map(f=>-c.stark_alpha*f*f),color:C.red,dash:[4,3]}];
+     const cols=[C.navy,C.acc,C.teal];
+     c.stark_d_list.forEach((d,i)=>s.push({name:"inter d="+d+" nm",x:F,y:F.map(f=>-1000*d*f*c.dipole_sign),color:cols[i%3]}));
+     return {title:"Efecto Stark del excitón (dipolo permanente)",xlabel:"F (V nm⁻¹)",ylabel:"ΔE Stark (meV)",series:s};},
+   cs:c=>({x:F_GRID,y:F_GRID.map(f=>-1000*c.d_nm*f*c.dipole_sign)})},
+ zeeman:{label:"Zeeman de valle ΔE(B)", cmp:true,
+   eq:"ΔE = g·μ_B·B,   μ_B = 0.05788 meV/T",
+   use:"Desdoblamiento de los valles K y K' con campo magnético. Los factores g (grandes y de signo definido para el IX) identifican el carácter espín-valle del estado y su composición de capas.",
+   refs:["wang2018"],
+   fn:(c,g)=>{const B=B_GRID,z=gg=>B.map(b=>gg*muB*b);
+     return {title:"Desdoblamiento Zeeman de valle",xlabel:"B (T)",ylabel:"ΔE (meV)",series:[
+       {name:"inter g="+c.g_inter,x:B,y:z(c.g_inter),color:C.blue},
+       {name:"intra A g="+c.g_intraA,x:B,y:z(c.g_intraA),color:C.red},
+       {name:"intra B g="+c.g_intraB,x:B,y:z(c.g_intraB),color:C.orange,dash:[4,3]}]};},
+   cs:c=>({x:B_GRID,y:B_GRID.map(b=>c.g_inter*muB*b)})},
+ acopl:{label:"Acoplamiento t_⊥(d)", cmp:true,
+   eq:"t_⊥(d) = t₀·exp[ −(d − d₀)/λ ]",
+   use:"Cómo crece exponencialmente el acoplamiento electrónico fuera del plano al acercar las capas. Es la base física del ajuste por presión: comprimir el hueco de van der Waals aumenta t_⊥ y la hibridación.",
+   refs:["nanolett2023"],
+   fn:(c,g)=>{const d=lin(c.d0_nm-0.10,c.d0_nm+0.15,60);
+     return {title:"Acoplamiento interlaminar fuera del plano",xlabel:"d (nm)",ylabel:"t_⊥ (meV)",series:[
+       {name:"t_⊥(d)",x:d,y:d.map(x=>c.t0_meV*Math.exp(-(x-c.d0_nm)/c.lam_nm)),color:C.blue}]};},
+   cs:c=>{const d=lin(0.55,0.85,60);return {x:d,y:d.map(x=>c.t0_meV*Math.exp(-(x-c.d0_nm)/c.lam_nm))};}},
+ presion:{label:"Presión: ΔE_IX(P) (DAC)", cmp:true,
+   eq:"ΔE_{IX}(P) = (dE/dP)·P,   d(P) = d₀(1 − κP)",
+   use:"Corrimiento al azul del IX esperado en la celda de yunque de diamante. La pendiente dE/dP traza la hibridación interlaminar; combinada con el acortamiento de τ, cuantifica el aumento de la fuerza de oscilador.",
+   refs:["nanolett2023"],
+   fn:(c,g)=>{const P=P_GRID;
+     return {title:"Corrimiento del IX bajo presión (celda de diamante)",xlabel:"P (GPa)",ylabel:"ΔE_{IX} (meV)",series:[
+       {name:"dE/dP="+c.dEdP_meV_GPa+" meV/GPa",x:P,y:P.map(p=>c.dEdP_meV_GPa*p),color:C.red}]};},
+   cs:c=>({x:P_GRID,y:P_GRID.map(p=>c.dEdP_meV_GPa*p)})},
+ rydberg:{label:"Serie de Rydberg 2D", cmp:true, markers:true,
+   eq:"E_n = −E_b/(2n − 1)²   (serie 2D no hidrogénica)",
+   use:"Estructura interna del excitón. El IX está mucho menos ligado (E_b menor) que el excitón intracapa, lo que refleja su separación espacial de carga y su menor traslape electrón–hueco.",
+   refs:["chernikov2014","wang2018"],
+   fn:(c,g)=>({title:"Serie de Rydberg 2D",xlabel:"n",ylabel:"E (meV)",markers:true,series:[
+       {name:"intracapa (E_b="+c.Eb_intra_meV+")",x:N_GRID,y:N_GRID.map(k=>-c.Eb_intra_meV/Math.pow(2*k-1,2)),color:C.red},
+       {name:"interlaminar (E_b="+c.Eb_inter_meV+")",x:N_GRID,y:N_GRID.map(k=>-c.Eb_inter_meV/Math.pow(2*k-1,2)),color:C.blue}]}),
+   cs:c=>({x:N_GRID,y:N_GRID.map(k=>-c.Eb_inter_meV/Math.pow(2*k-1,2)),markers:true})},
+ plT:{label:"PL vs T (Arrhenius)", cmp:true,
+   eq:"I(T)/I₀ = 1 / (1 + A·exp(−E_a/k_B T))",
+   use:"Extinción térmica de la fotoluminiscencia. La energía de activación E_a mide la profundidad de las trampas; la componente atrapada, menos dependiente de T, se separa de la libre.",
+   refs:["rivera2015","natmat2020"],
+   fn:(c,g)=>({title:"Extinción térmica de la PL",xlabel:"T (K)",ylabel:"PL (norm.)",series:[
+       {name:"intracapa (E_a="+c.arr_intra[1]+")",x:T_GRID,y:arrF(c.arr_intra[0],c.arr_intra[1]),color:C.red},
+       {name:"interlaminar (E_a="+c.arr_inter[1]+")",x:T_GRID,y:arrF(c.arr_inter[0],c.arr_inter[1]),color:C.blue}]}),
+   cs:c=>({x:T_GRID,y:arrF(c.arr_inter[0],c.arr_inter[1])})},
+ tauT:{label:"τ interlaminar vs T", cmp:true,
+   eq:"τ(T) = τ₀ / (1 + A·exp(−E_a/k_B T))",
+   use:"Tiempo de vida del IX frente a la temperatura. Distingue la recombinación radiativa de los canales no radiativos activados térmicamente; a baja T se recupera τ₀.",
+   refs:["rivera2015"],
+   fn:(c,g)=>({title:"Tiempo de vida interlaminar vs. temperatura",xlabel:"T (K)",ylabel:"τ (ns)",series:[
+       {name:"τ(T), τ₀="+c.tau0_ns+" ns",x:T_GRID,y:T_GRID.map(t=>c.tau0_ns/(1+c.arr_inter[0]*Math.exp(-c.arr_inter[1]/(kB*t)))),color:C.navy}]}),
+   cs:c=>({x:T_GRID,y:T_GRID.map(t=>c.tau0_ns/(1+c.arr_inter[0]*Math.exp(-c.arr_inter[1]/(kB*t))))})},
+ tcspc:{label:"Ventana TCSPC (log-log)", cmp:false,
+   eq:"τ_{máx} = T_{rep}/5,   T_{rep} = 1/f_{rep};   τ_{mín} ≈ IRF/4",
+   use:"Factibilidad temporal: verifica que la vida del IX (ns–µs) cae dentro de la ventana medible del TCSPC con las frecuencias del EPL-405; la reconvolución alcanza τ_mín ≈ 50 ps. No depende del sistema.",
+   refs:["rivera2015"],
+   fn:(c,g)=>{const ff=logspace(2.5e3,20e6,200);
+     return {title:"Factibilidad TCSPC: τ_{máx} = T_{rep}/5",xlabel:"f_{rep} (Hz)",ylabel:"τ (ns)",xlog:true,ylog:true,
+       bands:[{y0:1,y1:1000,color:C.red,label:"IX esperado"},{y0:0.001,y1:0.1,color:C.grey,label:"intracapa"}],
+       hlines:[{y:IRF_ns/4,label:"τ_{mín}≈50 ps"}],
+       series:[{name:"τ_{máx}=T_{rep}/5",x:ff,y:ff.map(f=>1e9/f/5),color:C.navy},
+               {name:"frecuencias EPL-405",x:EPL,y:EPL.map(f=>1e9/f/5),color:C.blue,markers:true,noline:true}]};}},
+ deteccion:{label:"Detección: QE Si + λ_IX", cmp:"special",
+   eq:"λ = hc/E_{IX},   hc = 1240 eV·nm;   QE_{Si}(λ): modelo del detector",
+   use:"Indica con qué detector es medible cada sistema: si λ del IX cae en la zona eficiente del Si (≲1000 nm) o si requiere InGaAs/NIR. Fija el orden de prioridad experimental.",
+   refs:["rivera2015"],
+   fn:(c,g)=>{const lam=lin(400,1100,141), l=hc/c.E_IX_eV;
+     return {title:"Factibilidad de detección con Si",xlabel:"λ emisión (nm)",ylabel:"QE Si (aprox., %)",
+       vlines:[{x:l,label:c.capa1+"/"+c.capa2+"  "+l.toFixed(0)+" nm",color:C.red}],
+       series:[{name:"QE Si",x:lam,y:lam.map(x=>qeSi(x,g)*100),color:C.navy}]};}},
+ deformacion:{label:"Deformación: ΔE_IX, Raman", cmp:false,
+   eq:"ΔE_g = Ξ·(ε_{xx} + ε_{yy});   Δω = (dω/dε)·ε;   F_{embudo} = −∇E_g",
+   use:"Corrimiento de la banda e ingeniería tipo embudo bajo deformación mecánica. El corrimiento Raman da la lectura local de ε en el mismo punto, permitiendo construir la relación τ(ε). (Parámetros globales; material-específico.)",
+   refs:["conley2013","feng2012"],
+   fn:(c,g)=>{const e=lin(0,1.5,61);
+     return {title:"Deformación biaxial: corrimiento del IX y Raman",xlabel:"ε (%)",ylabel:"ΔE_{IX} (meV)  /  Δω×10 (cm⁻¹)",series:[
+       {name:"ΔE_{IX} = Ξ·ε (Ξ="+g.Xi_meV_pct+")",x:e,y:e.map(x=>g.Xi_meV_pct*x),color:C.red},
+       {name:"Δω×10 (dω/dε="+g.raman_dw_cm_pct+")",x:e,y:e.map(x=>10*g.raman_dw_cm_pct*x),color:C.blue,dash:[4,3]}]};}},
+ moire:{label:"Moiré: a_M(θ)", cmp:false,
+   eq:"a_M ≈ a / √( δ² + θ² )",
+   use:"Periodo de la superred moiré frente al ángulo de giro. Fija el confinamiento (junto con V_M) y cuántas celdas moiré promedia un punto confocal. (Parámetros globales; el desajuste δ es del par de materiales.)",
+   refs:["zhang2020","regan2022"],
+   fn:(c,g)=>{const th=lin(0.05,3,120), rad=x=>x*Math.PI/180;
+     return {title:"Superred moiré: periodo a_M",xlabel:"θ (°)",ylabel:"a_M (nm)",ymax:25,series:[
+       {name:"heterobicapa (δ="+g.delta_mis+")",x:th,y:th.map(x=>g.a_latt_nm/Math.sqrt(g.delta_mis*g.delta_mis+rad(x)*rad(x))),color:C.navy},
+       {name:"bicapa girada (δ=0)",x:th,y:th.map(x=>g.a_latt_nm/rad(x)),color:C.green,dash:[4,3]}]};}},
 };
 
-/* ===================== motor de dibujo (canvas) ===================== */
-function niceTicks(min,max,n){
-  if(min===max){min-=1;max+=1;}
-  const span=max-min, step0=span/n, mag=Math.pow(10,Math.floor(Math.log10(step0))), r=step0/mag;
-  let st=(r>=5?5:r>=2?2:1)*mag; const t0=Math.ceil(min/st)*st, out=[];
-  for(let v=t0;v<=max+st*1e-6;v+=st) out.push(Math.abs(v)<st*1e-6?0:v);
-  return out;
-}
-function fmt(v){ const a=Math.abs(v); if(a!==0&&(a<1e-2||a>=1e4)) return v.toExponential(0); return (Math.round(v*1000)/1000).toString(); }
+/* ===================== texto enriquecido (subíndices/superíndices) ===================== */
+function parseRich(s){s=""+s;const out=[];let i=0;while(i<s.length){const ch=s[i];
+  if(ch==="_"||ch==="^"){const k=ch==="_"?"sub":"sup";i++;let t;if(s[i]==="{"){const j=s.indexOf("}",i);t=s.slice(i+1,j);i=j+1;}else{t=s[i]||"";i++;}out.push({t,k});}
+  else{let j=i;while(j<s.length&&s[j]!=="_"&&s[j]!=="^")j++;out.push({t:s.slice(i,j),k:"base"});i=j;}}
+  return out;}
+function stripMarkup(s){return parseRich(s).map(r=>r.t).join("");}
+function richToHTML(s){return parseRich(s).map(r=>{const t=r.t.replace(/&/g,"&amp;").replace(/</g,"&lt;");return r.k==="sub"?"<sub>"+t+"</sub>":r.k==="sup"?"<sup>"+t+"</sup>":t;}).join("");}
+function richWidth(ctx,s,size,bold){const rs=parseRich(s);let w=0;rs.forEach(r=>{const sz=r.k==="base"?size:size*0.72;ctx.font=(bold?"bold ":"")+sz+"px sans-serif";w+=ctx.measureText(r.t).width;});return w;}
+function drawRich(ctx,s,x,y,o){o=o||{};const size=o.size||12,align=o.align||"left",bold=o.bold;
+  const w=richWidth(ctx,s,size,bold);let cx=align==="center"?x-w/2:align==="right"?x-w:x;
+  ctx.textAlign="left";ctx.textBaseline="alphabetic";if(o.color)ctx.fillStyle=o.color;
+  parseRich(s).forEach(r=>{const sz=r.k==="base"?size:size*0.72;ctx.font=(bold?"bold ":"")+sz+"px sans-serif";
+    const dy=r.k==="sub"?size*0.26:r.k==="sup"?-size*0.40:0;ctx.fillText(r.t,cx,y+dy);cx+=ctx.measureText(r.t).width;});
+  return w;}
 
+/* ===================== motor de dibujo ===================== */
+function niceTicks(min,max,n){if(min===max){min-=1;max+=1;}const span=max-min,step0=span/n,mag=Math.pow(10,Math.floor(Math.log10(step0))),r=step0/mag;
+  let st=(r>=5?5:r>=2?2:1)*mag;const t0=Math.ceil(min/st)*st,out=[];for(let v=t0;v<=max+st*1e-6;v+=st)out.push(Math.abs(v)<st*1e-6?0:v);return out;}
+function fmt(v){const a=Math.abs(v);if(a!==0&&(a<1e-2||a>=1e4))return v.toExponential(0);return(Math.round(v*1000)/1000).toString();}
 function draw(cv,spec){
-  const ctx=cv.getContext("2d"), W=cv.width, H=cv.height;
-  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
-  const m={l:78,r:22,t:46,b:60}, pw=W-m.l-m.r, ph=H-m.t-m.b;
-  const xlog=!!spec.xlog, ylog=!!spec.ylog;
-  const tx=v=>xlog?Math.log10(v):v, ty=v=>ylog?Math.log10(v):v;
-  let xs=[],ys=[];
-  spec.series.forEach(s=>s.x.forEach((x,i)=>{const y=s.y[i]; if(xlog&&x<=0)return; if(ylog&&y<=0)return; if(!isFinite(x)||!isFinite(y))return; xs.push(x);ys.push(y);}));
-  (spec.vlines||[]).forEach(v=>xs.push(v.x));
+  const ctx=cv.getContext("2d"),W=cv.width,H=cv.height;ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);
+  const m={l:82,r:22,t:46,b:62},pw=W-m.l-m.r,ph=H-m.t-m.b;
+  const xlog=!!spec.xlog,ylog=!!spec.ylog,tx=v=>xlog?Math.log10(v):v,ty=v=>ylog?Math.log10(v):v;
+  let xs=[],ys=[];spec.series.forEach(s=>s.x.forEach((x,i)=>{const y=s.y[i];if(xlog&&x<=0)return;if(ylog&&y<=0)return;if(!isFinite(x)||!isFinite(y))return;xs.push(x);ys.push(y);}));
+  (spec.vlines||[]).forEach(v=>xs.push(v.x));(spec.bands||[]).forEach(b=>{ys.push(b.y0);ys.push(b.y1);});(spec.hlines||[]).forEach(h=>ys.push(h.y));
   let xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
-  (spec.bands||[]).forEach(b=>{ymin=Math.min(ymin,b.y0);ymax=Math.max(ymax,b.y1);});
-  (spec.hlines||[]).forEach(h=>{ymin=Math.min(ymin,h.y);});
-  if(spec.ymax!=null) ymax=spec.ymax;
-  if(!ylog){ if(ymin>0)ymin=0; if(ymax<0)ymax=0; const pad=(ymax-ymin)*0.06||1; ymin-=pad;ymax+=pad; }
+  if(spec.ymax!=null)ymax=spec.ymax;
+  if(!ylog){if(ymin>0)ymin=0;if(ymax<0)ymax=0;const pad=(ymax-ymin)*0.06||1;ymin-=pad;ymax+=pad;}
   const Xmin=tx(xmin),Xmax=tx(xmax),Ymin=ty(ymin),Ymax=ty(ymax);
-  const sx=v=>m.l+(tx(v)-Xmin)/(Xmax-Xmin)*pw, sy=v=>m.t+ph-(ty(v)-Ymin)/(Ymax-Ymin)*ph;
-
-  // bandas sombreadas
-  (spec.bands||[]).forEach(b=>{ctx.fillStyle=b.color; ctx.globalAlpha=0.12;
-    const y1=sy(Math.max(b.y0,ylog?1e-9:ymin)),y0=sy(Math.min(b.y1,ymax)); ctx.fillRect(m.l,y0,pw,y1-y0); ctx.globalAlpha=1;
-    ctx.fillStyle=b.color; ctx.font="11px sans-serif"; ctx.fillText(b.label,m.l+6,y0+13);});
-
-  // ejes y rejilla
-  ctx.strokeStyle="#e6eaf0"; ctx.fillStyle="#5a6472"; ctx.font="11px sans-serif"; ctx.lineWidth=1;
-  if(xlog){ for(let d=Math.floor(Xmin);d<=Math.ceil(Xmax);d++){const x=sx(Math.pow(10,d)); if(x<m.l-1||x>W-m.r+1)continue;
-      ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke(); ctx.textAlign="center"; ctx.fillText("10"+sup(d),x,m.t+ph+16);} }
-  else { niceTicks(xmin,xmax,7).forEach(v=>{const x=sx(v); if(x<m.l-1||x>W-m.r+1)return; ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke(); ctx.textAlign="center"; ctx.fillText(fmt(v),x,m.t+ph+16);}); }
-  if(ylog){ for(let d=Math.floor(Ymin);d<=Math.ceil(Ymax);d++){const y=sy(Math.pow(10,d)); if(y<m.t-1||y>m.t+ph+1)continue;
-      ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(m.l+pw,y);ctx.stroke(); ctx.textAlign="right"; ctx.fillText("10"+sup(d),m.l-8,y+4);} }
-  else { niceTicks(ymin,ymax,6).forEach(v=>{const y=sy(v); if(y<m.t-1||y>m.t+ph+1)return; ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(m.l+pw,y);ctx.stroke(); ctx.textAlign="right"; ctx.fillText(fmt(v),m.l-8,y+4);}); }
-
-  // marco
-  ctx.strokeStyle="#9aa4b2"; ctx.lineWidth=1.2; ctx.strokeRect(m.l,m.t,pw,ph);
-
-  // cero
+  const sx=v=>m.l+(tx(v)-Xmin)/(Xmax-Xmin)*pw,sy=v=>m.t+ph-(ty(v)-Ymin)/(Ymax-Ymin)*ph;
+  (spec.bands||[]).forEach(b=>{ctx.fillStyle=b.color;ctx.globalAlpha=0.12;const y1=sy(Math.max(b.y0,ylog?1e-9:ymin)),y0=sy(Math.min(b.y1,ymax));ctx.fillRect(m.l,y0,pw,y1-y0);ctx.globalAlpha=1;
+    drawRich(ctx,b.label,m.l+6,y0+13,{size:11,color:b.color});});
+  ctx.strokeStyle="#e6eaf0";ctx.fillStyle="#5a6472";ctx.lineWidth=1;
+  if(xlog){for(let d=Math.floor(Xmin);d<=Math.ceil(Xmax);d++){const x=sx(Math.pow(10,d));if(x<m.l-1||x>W-m.r+1)continue;ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke();drawRich(ctx,"10^{"+d+"}",x,m.t+ph+17,{size:11,align:"center",color:"#5a6472"});}}
+  else{niceTicks(xmin,xmax,7).forEach(v=>{const x=sx(v);if(x<m.l-1||x>W-m.r+1)return;ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke();ctx.font="11px sans-serif";ctx.fillStyle="#5a6472";ctx.textAlign="center";ctx.fillText(fmt(v),x,m.t+ph+17);});}
+  if(ylog){for(let d=Math.floor(Ymin);d<=Math.ceil(Ymax);d++){const y=sy(Math.pow(10,d));if(y<m.t-1||y>m.t+ph+1)continue;ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(m.l+pw,y);ctx.stroke();drawRich(ctx,"10^{"+d+"}",m.l-10,y+4,{size:11,align:"right",color:"#5a6472"});}}
+  else{niceTicks(ymin,ymax,6).forEach(v=>{const y=sy(v);if(y<m.t-1||y>m.t+ph+1)return;ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(m.l+pw,y);ctx.stroke();ctx.font="11px sans-serif";ctx.fillStyle="#5a6472";ctx.textAlign="right";ctx.fillText(fmt(v),m.l-8,y+4);});}
+  ctx.strokeStyle="#9aa4b2";ctx.lineWidth=1.2;ctx.strokeRect(m.l,m.t,pw,ph);
   if(!ylog&&ymin<0&&ymax>0){ctx.strokeStyle="#b7c0cc";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(m.l,sy(0));ctx.lineTo(m.l+pw,sy(0));ctx.stroke();}
-
-  // vlines
-  (spec.vlines||[]).forEach(v=>{const x=sx(v.x); ctx.strokeStyle=v.color||C.red; ctx.setLineDash([5,4]);ctx.lineWidth=1.6;
-    ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle=v.color||C.red; ctx.font="11px sans-serif"; ctx.textAlign=(x>m.l+pw*0.6)?"right":"left";
-    ctx.fillText(v.label,(x>m.l+pw*0.6)?x-5:x+5,m.t+ph-8);});
-  // hlines
-  (spec.hlines||[]).forEach(h=>{const y=sy(h.y); ctx.strokeStyle="#222"; ctx.setLineDash([2,3]);ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(m.l+pw,y);ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle="#222"; ctx.font="10.5px sans-serif"; ctx.textAlign="right"; ctx.fillText(h.label,m.l+pw-6,y-4);});
-
-  // series
-  spec.series.forEach(s=>{
-    ctx.strokeStyle=s.color; ctx.fillStyle=s.color; ctx.lineWidth=2.2; ctx.setLineDash(s.dash||[]);
-    if(!s.noline){ ctx.beginPath(); let started=false;
-      s.x.forEach((x,i)=>{const y=s.y[i]; if((xlog&&x<=0)||(ylog&&y<=0)||!isFinite(y)){started=false;return;}
-        const px=sx(x),py=sy(y); if(!started){ctx.moveTo(px,py);started=true;}else ctx.lineTo(px,py);}); ctx.stroke(); }
-    ctx.setLineDash([]);
-    if(s.markers||spec.markers){ s.x.forEach((x,i)=>{const y=s.y[i]; if((xlog&&x<=0)||(ylog&&y<=0)||!isFinite(y))return;
-      ctx.beginPath();ctx.arc(sx(x),sy(y),3.1,0,7);ctx.fill();}); }
-  });
-
-  // leyenda
+  (spec.vlines||[]).forEach(v=>{const x=sx(v.x);ctx.strokeStyle=v.color||C.red;ctx.setLineDash([5,4]);ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke();ctx.setLineDash([]);
+    drawRich(ctx,v.label,(x>m.l+pw*0.6)?x-5:x+5,m.t+ph-8,{size:11,align:(x>m.l+pw*0.6)?"right":"left",color:v.color||C.red});});
+  (spec.hlines||[]).forEach(h=>{const y=sy(h.y);ctx.strokeStyle="#222";ctx.setLineDash([2,3]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(m.l+pw,y);ctx.stroke();ctx.setLineDash([]);
+    drawRich(ctx,h.label,m.l+pw-6,y-4,{size:10.5,align:"right",color:"#222"});});
+  spec.series.forEach(s=>{ctx.strokeStyle=s.color;ctx.fillStyle=s.color;ctx.lineWidth=2.2;ctx.setLineDash(s.dash||[]);
+    if(!s.noline){ctx.beginPath();let st=false;s.x.forEach((x,i)=>{const y=s.y[i];if((xlog&&x<=0)||(ylog&&y<=0)||!isFinite(y)){st=false;return;}const px=sx(x),py=sy(y);if(!st){ctx.moveTo(px,py);st=true;}else ctx.lineTo(px,py);});ctx.stroke();}
+    ctx.setLineDash([]);if(s.markers||spec.markers){s.x.forEach((x,i)=>{const y=s.y[i];if((xlog&&x<=0)||(ylog&&y<=0)||!isFinite(y))return;ctx.beginPath();ctx.arc(sx(x),sy(y),3.1,0,7);ctx.fill();});}});
   const items=spec.series.filter(s=>s.name);
-  ctx.font="11.5px sans-serif"; ctx.textAlign="left";
-  let lw=0; items.forEach(s=>lw=Math.max(lw,ctx.measureText(s.name).width));
-  const lx=m.l+pw-lw-30, ly=m.t+8;
-  ctx.fillStyle="rgba(255,255,255,.82)"; ctx.fillRect(lx-8,ly-4,lw+34,items.length*17+8);
-  items.forEach((s,i)=>{const y=ly+i*17+8; ctx.strokeStyle=s.color;ctx.lineWidth=2.4;ctx.setLineDash(s.dash||[]);
-    ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(lx+20,y);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle="#33404f"; ctx.fillText(s.name,lx+26,y+4);});
-
-  // títulos
-  ctx.fillStyle=C.navy; ctx.font="bold 14px sans-serif"; ctx.textAlign="center";
-  ctx.fillText(spec.title,W/2,26);
-  ctx.fillStyle="#33404f"; ctx.font="12px sans-serif";
-  ctx.fillText(spec.xlabel,m.l+pw/2,H-16);
-  ctx.save(); ctx.translate(20,m.t+ph/2); ctx.rotate(-Math.PI/2); ctx.textAlign="center"; ctx.fillText(spec.ylabel,0,0); ctx.restore();
+  let lw=0;items.forEach(s=>lw=Math.max(lw,richWidth(ctx,s.name,11.5)));
+  const lx=m.l+pw-lw-30,ly=m.t+8;ctx.fillStyle="rgba(255,255,255,.82)";ctx.fillRect(lx-8,ly-4,lw+34,items.length*17+8);
+  items.forEach((s,i)=>{const y=ly+i*17+8;ctx.strokeStyle=s.color;ctx.lineWidth=2.4;ctx.setLineDash(s.dash||[]);ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(lx+20,y);ctx.stroke();ctx.setLineDash([]);
+    drawRich(ctx,s.name,lx+26,y+4,{size:11.5,color:"#33404f"});});
+  drawRich(ctx,spec.title,W/2,27,{size:14,bold:true,align:"center",color:C.navy});
+  drawRich(ctx,spec.xlabel,m.l+pw/2,H-16,{size:12,align:"center",color:"#33404f"});
+  ctx.save();ctx.translate(22,m.t+ph/2);ctx.rotate(-Math.PI/2);drawRich(ctx,spec.ylabel,0,0,{size:12,align:"center",color:"#33404f"});ctx.restore();
 }
-function sup(d){ const map={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}; return (""+d).split("").map(ch=>map[ch]||ch).join(""); }
 
 /* ===================== estado + UI ===================== */
-let curSys="MoS2/WSe2", curPlot="stark", params={}, globals=Object.assign({},GLOBAL_DEF), curSpec=null;
+let mode="single", curSys="MoS2/WSe2", curPlot="stark", params={}, globals=Object.assign({},GLOBAL_DEF), selected=new Set(["MoS2/WSe2","MoSe2/WSe2","MoS2/ReS2"]), curSpec=null;
 
-function loadParams(){ params=JSON.parse(JSON.stringify(CASES[curSys])); }
+function loadParams(){params=JSON.parse(JSON.stringify(CASES[curSys]));}
 function renderParamInputs(){
-  const box=document.getElementById("params"); box.innerHTML="";
-  PDEF.forEach(([k,lab,type])=>{
-    const wrap=document.createElement("label"); wrap.className="fld";
-    let val=params[k]; if(type==="arr") val=(val||[]).join(", ");
-    wrap.innerHTML='<span>'+lab+'</span>';
-    const inp=document.createElement("input"); inp.value=val; inp.dataset.k=k; inp.dataset.t=type;
-    inp.addEventListener("input",()=>{updateParam(inp);});
-    wrap.appendChild(inp); box.appendChild(wrap);
-  });
-  const gb=document.getElementById("globals"); gb.innerHTML="";
-  GDEF.forEach(([k,lab])=>{ const wrap=document.createElement("label"); wrap.className="fld";
-    wrap.innerHTML='<span>'+lab+'</span>';
-    const inp=document.createElement("input"); inp.value=globals[k]; inp.dataset.gk=k;
-    inp.addEventListener("input",()=>{const v=parseFloat(inp.value); if(isFinite(v)){globals[k]=v; refresh();}});
-    wrap.appendChild(inp); gb.appendChild(wrap); });
+  const box=document.getElementById("params");box.innerHTML="";
+  PDEF.forEach(([k,lab,type])=>{const wrap=document.createElement("label");wrap.className="fld";let val=params[k];if(type==="arr")val=(val||[]).join(", ");
+    wrap.innerHTML="<span></span>";wrap.querySelector("span").innerHTML=lab;
+    const inp=document.createElement("input");inp.value=val;inp.dataset.k=k;inp.dataset.t=type;inp.addEventListener("input",()=>updateParam(inp));wrap.appendChild(inp);box.appendChild(wrap);});
+  const gb=document.getElementById("globals");gb.innerHTML="";
+  GDEF.forEach(([k,lab])=>{const wrap=document.createElement("label");wrap.className="fld";wrap.innerHTML="<span></span>";wrap.querySelector("span").innerHTML=lab;
+    const inp=document.createElement("input");inp.value=globals[k];inp.dataset.gk=k;inp.addEventListener("input",()=>{const v=parseFloat(inp.value);if(isFinite(v)){globals[k]=v;refresh();}});wrap.appendChild(inp);gb.appendChild(wrap);});
 }
-function updateParam(inp){
-  const k=inp.dataset.k,t=inp.dataset.t;
-  if(t==="str"){ params[k]=inp.value; }
-  else if(t==="arr"){ const a=inp.value.split(",").map(s=>parseFloat(s.trim())).filter(x=>isFinite(x)); if(a.length)params[k]=a; }
-  else { const v=parseFloat(inp.value); if(isFinite(v))params[k]=v; }
-  refresh();
+function updateParam(inp){const k=inp.dataset.k,t=inp.dataset.t;
+  if(t==="str")params[k]=inp.value;else if(t==="arr"){const a=inp.value.split(",").map(s=>parseFloat(s.trim())).filter(x=>isFinite(x));if(a.length)params[k]=a;}else{const v=parseFloat(inp.value);if(isFinite(v))params[k]=v;}refresh();}
+function renderChecklist(){const box=document.getElementById("chkList");box.innerHTML="";
+  Object.keys(CASES).forEach((k,i)=>{const row=document.createElement("label");row.className="chk";
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=selected.has(k);cb.addEventListener("change",()=>{cb.checked?selected.add(k):selected.delete(k);refresh();});
+    const sw=document.createElement("span");sw.className="sw";sw.style.background=PAL[i%PAL.length];
+    const tx=document.createElement("span");tx.textContent=k;row.appendChild(cb);row.appendChild(sw);row.appendChild(tx);box.appendChild(row);});
 }
-function readout(){
-  const l=hc/params.E_IX_eV, q=qeSi(l,globals)*100, det=(l<=1000&&q>=5)?"Si (instalado)":"InGaAs / NIR-PMT";
-  document.getElementById("readout").innerHTML=
-    "<b>"+params.capa1+" / "+params.capa2+"</b> · λ_IX = <b>"+l.toFixed(0)+" nm</b> · QE Si ≈ "+q.toFixed(0)+"% · detector: <b>"+det+"</b>"+
-    "<br>τ0 = "+params.tau0_ns+" ns · Ea inter = "+params.arr_inter[1]+" meV · dE/dP = "+params.dEdP_meV_GPa+" meV/GPa · dipolo "+(params.dipole_sign<0?"invertido (−)":"base (+)");
-  document.getElementById("sysTag").textContent=(params.janus?"Janus · IX estimado":(params.dipole_sign<0?"apilamiento invertido":"crecido y medido"));
+function readoutSingle(){const l=hc/params.E_IX_eV,q=qeSi(l,globals)*100,det=(l<=1000&&q>=5)?"Si (instalado)":"InGaAs / NIR-PMT";
+  document.getElementById("readout").innerHTML="<b>"+params.capa1+" / "+params.capa2+"</b> · λ<sub>IX</sub> = <b>"+l.toFixed(0)+" nm</b> · QE Si ≈ "+q.toFixed(0)+"% · detector: <b>"+det+"</b><br>τ₀ = "+params.tau0_ns+" ns · E<sub>a</sub> inter = "+params.arr_inter[1]+" meV · dE/dP = "+params.dEdP_meV_GPa+" meV/GPa · dipolo "+(params.dipole_sign<0?"invertido (−)":"base (+)");
+  document.getElementById("sysTag").textContent=(params.janus?"Janus · IX estimado":(params.dipole_sign<0?"apilamiento invertido":"crecido y medido"));}
+function readoutCompare(){document.getElementById("readout").innerHTML="<b>"+selected.size+"</b> sistema(s) seleccionado(s). Cada curva usa los parámetros almacenados de su sistema. La edición de parámetros aplica al modo Caso único.";}
+
+function specSingle(){return PLOTS[curPlot].fn(params,globals);}
+function specCompare(){
+  const P=PLOTS[curPlot], names=Object.keys(CASES).filter(k=>selected.has(k));
+  if(!P.cmp){const sp=P.fn(params,globals);sp.title=sp.title+"  (no depende del sistema)";return sp;}
+  if(curPlot==="deteccion"){const lam=lin(400,1100,141);
+    const series=[{name:"QE Si",x:lam,y:lam.map(x=>qeSi(x,globals)*100),color:C.grey}],vlines=[];
+    names.forEach((k,i)=>{const c=CASES[k],l=hc/c.E_IX_eV,col=PAL[Object.keys(CASES).indexOf(k)%PAL.length];
+      series.push({name:k+" ("+l.toFixed(0)+" nm)",x:[l],y:[qeSi(l,globals)*100],color:col,markers:true,noline:true});
+      vlines.push({x:l,label:"",color:col});});
+    return {title:"Detección por sistema: λ_{IX} sobre la QE del Si",xlabel:"λ emisión (nm)",ylabel:"QE Si (aprox., %)",series,vlines};}
+  const base=P.fn(CASES[names[0]]||params,globals);
+  const series=names.map((k)=>{const g=P.cs(CASES[k]);return {name:k,x:g.x,y:g.y,color:PAL[Object.keys(CASES).indexOf(k)%PAL.length],markers:!!g.markers,noline:!!g.noline};});
+  return {title:base.title+"  ·  comparación",xlabel:base.xlabel,ylabel:base.ylabel,xlog:base.xlog,ylog:base.ylog,ymax:base.ymax,markers:P.markers,series};
+}
+function updateInfo(){const P=PLOTS[curPlot];
+  document.getElementById("infoEq").innerHTML=richToHTML(P.eq);
+  document.getElementById("infoUse").textContent=P.use;
+  document.getElementById("infoRefs").innerHTML=P.refs.map(r=>{const R=REFS[r];return R.c+' <a href="https://doi.org/'+R.d+'" target="_blank" rel="noopener">'+R.d+'</a>';}).join("<br>");
 }
 function refresh(){
-  curSpec=PLOTS[curPlot].fn(params,globals);
+  curSpec=(mode==="single")?specSingle():specCompare();
   draw(document.getElementById("cv"),curSpec);
-  readout();
-  const base=(params.capa1+"_"+params.capa2+"_"+curPlot).replace(/[^A-Za-z0-9_]+/g,"");
-  document.getElementById("fnameTag").textContent=base;
-  document.getElementById("plotNote").textContent=PLOTS[curPlot].label+" — modelo ilustrativo. Edite los parámetros a la izquierda para explorar tendencias.";
+  updateInfo();
+  if(mode==="single"){readoutSingle();document.getElementById("fnameTag").textContent=safeName();}
+  else{readoutCompare();document.getElementById("fnameTag").textContent="comparar_"+curPlot;}
 }
-function safeName(){ return (params.capa1+"_"+params.capa2+"_"+curPlot).replace(/[^A-Za-z0-9_]+/g,""); }
+function safeName(){return (mode==="single"?(params.capa1+"_"+params.capa2+"_"+curPlot):("comparar_"+curPlot)).replace(/[^A-Za-z0-9_]+/g,"");}
 
 /* descargas */
-function dlJPG(){ const cv=document.getElementById("cv"); const a=document.createElement("a");
-  a.href=cv.toDataURL("image/jpeg",0.95); a.download=safeName()+".jpg"; document.body.appendChild(a); a.click(); a.remove(); }
-function dlCSV(){ const s=curSpec.series.filter(se=>se.name); const x=s[0].x;
-  let head=[curSpec.xlabel].concat(s.map(se=>se.name)); let rows=[head.join(",")];
-  for(let i=0;i<x.length;i++){ let r=[x[i]]; s.forEach(se=>r.push(se.y[i])); rows.push(r.map(v=>(typeof v==="number"?(+v.toPrecision(6)):v)).join(",")); }
-  const blob=new Blob([rows.join("\n")],{type:"text/csv"}); const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob); a.download=safeName()+".csv"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
+function dlJPG(){const cv=document.getElementById("cv");const a=document.createElement("a");a.href=cv.toDataURL("image/jpeg",0.95);a.download=safeName()+".jpg";document.body.appendChild(a);a.click();a.remove();}
+function num(v){return typeof v==="number"?(+v.toPrecision(6)):v;}
+function buildCSV(spec){const S=spec.series.filter(s=>s.name);const x0=S[0].x;const shared=S.every(s=>s.x.length===x0.length)&&!S.some(s=>s.noline&&s.x.length!==x0.length);
+  if(shared){let head=[stripMarkup(spec.xlabel)].concat(S.map(s=>stripMarkup(s.name)));let rows=[head.join(",")];
+    for(let i=0;i<x0.length;i++){let r=[x0[i]];S.forEach(s=>r.push(s.y[i]));rows.push(r.map(num).join(","));}return rows.join("\n");}
+  let rows=["serie,"+stripMarkup(spec.xlabel)+",valor"];S.forEach(s=>{for(let i=0;i<s.x.length;i++)rows.push('"'+stripMarkup(s.name)+'",'+num(s.x[i])+","+num(s.y[i]));});return rows.join("\n");}
+function dlCSV(){const blob=new Blob([buildCSV(curSpec)],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=safeName()+".csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);}
 
 /* init */
+function setMode(mo){mode=mo;document.getElementById("singleBox").hidden=(mo!=="single");document.getElementById("compareBox").hidden=(mo==="single");document.getElementById("paramCard").style.opacity=(mo==="single")?"1":"0.55";document.querySelectorAll("#paramCard input,#paramCard button").forEach(el=>el.disabled=(mo!=="single"));refresh();}
 function init(){
-  const ss=document.getElementById("sysSel"); Object.keys(CASES).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k;ss.appendChild(o);});
-  const ps=document.getElementById("plotSel"); Object.keys(PLOTS).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=PLOTS[k].label;ps.appendChild(o);});
-  ss.value=curSys; ps.value=curPlot;
-  ss.addEventListener("change",()=>{curSys=ss.value; loadParams(); renderParamInputs(); refresh();});
-  ps.addEventListener("change",()=>{curPlot=ps.value; refresh();});
-  document.getElementById("btnReset").addEventListener("click",()=>{loadParams(); globals=Object.assign({},GLOBAL_DEF); renderParamInputs(); refresh();});
+  const ss=document.getElementById("sysSel");Object.keys(CASES).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k;ss.appendChild(o);});
+  const ps=document.getElementById("plotSel");Object.keys(PLOTS).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=stripMarkup(PLOTS[k].label);ps.appendChild(o);});
+  ss.value=curSys;ps.value=curPlot;
+  ss.addEventListener("change",()=>{curSys=ss.value;loadParams();renderParamInputs();refresh();});
+  ps.addEventListener("change",()=>{curPlot=ps.value;refresh();});
+  document.querySelectorAll('input[name="mode"]').forEach(r=>r.addEventListener("change",()=>setMode(r.value)));
+  document.getElementById("btnResetCase").addEventListener("click",()=>{loadParams();renderParamInputs();refresh();});
+  document.getElementById("btnResetGlob").addEventListener("click",()=>{globals=Object.assign({},GLOBAL_DEF);renderParamInputs();refresh();});
   document.getElementById("btnJPG").addEventListener("click",dlJPG);
   document.getElementById("btnCSV").addEventListener("click",dlCSV);
-  loadParams(); renderParamInputs(); refresh();
+  document.getElementById("refList").innerHTML=Object.keys(REFS).map(k=>{const R=REFS[k];return '<div>'+R.c+' <a href="https://doi.org/'+R.d+'" target="_blank" rel="noopener">'+R.d+'</a></div>';}).join("");
+  loadParams();renderParamInputs();renderChecklist();refresh();
 }
 init();
 </script>

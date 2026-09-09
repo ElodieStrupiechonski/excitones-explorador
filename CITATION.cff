@@ -5,6 +5,8 @@ version: "1.0"
 date-released: "2026-09-09"
 license: CC-BY-4.0
 url: "https://elodiestrupiechonski.github.io/excitones-explorador/"
+# Tras acuñar el DOI en Zenodo, descomente y complete la siguiente línea con el DOI de concepto:
+# doi: "10.5281/zenodo.XXXXXXX"
 type: software
 authors:
   - given-names: Elodie

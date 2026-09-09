@@ -1,5 +1,10 @@
 # Explorador de excitones interlaminares
 
+<!-- Tras acuñar el DOI en Zenodo, pegue aquí la insignia (badge) del DOI de concepto:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+-->
+
+
 Explorador interactivo de la física de excitones intra e interlaminares en heteroestructuras
 de van der Waals (dicalcogenuros de metales de transición, TMD). Permite seleccionar un
 sistema de materiales, editar sus parámetros y generar gráficas de las tendencias
