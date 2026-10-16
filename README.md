@@ -40,6 +40,7 @@ apilamientos invertidos) y seis sistemas Janus/TMD (InClSe e InClS con MoS₂, M
 
 Strupiechonski, E., & de Luna Bugallo, A. (2026). *Explorador de excitones interlaminares en
 heteroestructuras de van der Waals* (v1.0) [software]. https://elodiestrupiechonski.github.io/excitones-explorador/
+DOI: 10.5281/zenodo.23423179
 
 Véase también `CITATION.cff`.
 
